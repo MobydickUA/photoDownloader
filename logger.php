@@ -67,4 +67,19 @@ class Logger
 			fclose($f);
 		}
 	}
+
+	public static function printHelp()
+	{
+		self::print("Parameters:
+
+	Required (one of them):
+	-u <user_id> - get all photos of user with <user_id>
+	-f <list.csv> - open csv file with list of user_ids and to get all their photos.You can find sample file in repo.
+	-l - show list of users, already downloaded into DB
+	-s <user_id> - find user and all his photos and albums by id
+
+	Optional:
+	-q - quiet mode - do not output anything to command line
+	-d - direct connection. By default it uses proxy, but you can disable it by -d flag. You can change proxy server in apiManager.php file");
+	}
 }
