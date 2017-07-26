@@ -61,7 +61,7 @@ class Model
 			return $res;
 		}
 		else {
-			return "There is no data in DB yet...";
+			return "There is no such user in DB...";
 		}
 	}
 }
