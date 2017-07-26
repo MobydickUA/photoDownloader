@@ -1,19 +1,22 @@
 # photoDownloader
 Download photos URL from vk.com by user id and store them in DB.
+Console application for unix-like operating systems.
 
 ### Requirements:
 * PHP 5.* or higher (tested on 7.0 version)
 * MySQL server (tested on 5.7.17 version). ATTENTION. ONLY InnoDB engine!
 * cURL (tested on 7.49.0 version)
+* php-pdo extension
+* php-curl extension
 
 ### Configuration
 * Download and unpack project
 * Specify path to your`s php file (for example #!/usr/bin/php)
 * Specify info for DB connection in db.php
-* Upload db_dump.sql onto your server ( `mysql -u username -p database_name < file.sql` )
+* Upload db_dump.sql onto your server ( `mysql -u username -p < file.sql` )
 
 ### Usage
-Run it as `./photoDownloader`
+Run it as `./photoDownloader` or `php photoDownloader`
 
 ### Parameters:
 #### Required (one of them):
