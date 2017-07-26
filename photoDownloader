@@ -1,0 +1,121 @@
+#!/usr/bin/php
+
+<?php
+
+// error_reporting(E_ALL & ~E_NOTICE);
+
+require_once ('apiManager.php');
+require_once ('logger.php');
+require_once ('model.php');
+
+    
+class Bootstrapper
+{
+	private $useProxy = true;
+	private $param;
+	private $mode;
+
+	public function __construct()
+	{
+		$options = getopt("u:f:s:l::d::q::");
+		if(isset($options)) {
+			if(array_key_exists('d',  $options)) {
+				$this->useProxy = false;			// direct connection, no proxy
+			}
+			if(array_key_exists('q', $options)) {
+				Logger::setMode(0);					//output to log file only
+			}
+			if(array_key_exists('l', $options)) {
+				$this->mode = 'l';
+				$this->param = $options['l'];
+				return 0;
+			}
+			if(array_key_exists('f', $options)) {
+				$this->mode = 'f';
+				$this->param = $options['f'];
+				return 0;
+			}
+			if(array_key_exists('u', $options)) {
+				$this->mode = 'u';
+				$this->param = $options['u'];
+				return 0;
+			}
+			if(array_key_exists('s', $options)) {
+				$this->mode = 's';
+				$this->param = $options['s'];
+				return 0;
+			}
+		}
+	}
+
+	public function start()
+	{
+		switch($this->mode) {
+			case 'u':											// input ID from console
+				$this->storeFromAPI($this->param);
+				break;
+			case 'f':											// read ID`s from file
+				try {
+					$user_ids = $this->readFromFile($this->param);		
+					$this->storeFromAPI($user_ids);
+				}
+				catch (Exception $e) {
+					Logger::print($e->getMessage());
+				}
+				break;
+			case 'l':											// show list of loaded users
+				try {
+					$model = new Model();
+					$data = $model->getUsers();
+					Logger::printTable($data);
+				}
+				catch (Exception $e) {
+					Logger::print($e->getMessage());
+				}
+				break;
+			case 's':											// show loaded photos by ID
+				try {
+					$model = new Model();
+					$data = $model->searchUser($this->param);
+					Logger::printTable($data);
+				}
+				catch (Exception $e) {
+					Logger::print($e->getMessage());
+				}
+				break;
+			default:
+				Logger::print("You should specify at least one of this parameters: -u, -f, -l, -s");
+				
+		}
+		die();
+	}
+
+	private function readFromFile($filename)
+	{
+		if(!is_readable($filename)) {
+			throw new Exception("File $filename isn`t readable or doesn`t exists");
+		}
+		$csv = array_map('str_getcsv', file($filename))[0];
+		$cleaned = array_map("trim", $csv);
+		return array_unique($cleaned);
+	}
+
+	private function storeFromAPI($user_ids)
+	{
+		try {
+			$api = new API_Manager($this->useProxy);	
+			$data = $api->getData($user_ids);
+			if($data) {
+				$model = new Model();
+				$model->store($data);
+			}
+		}
+		catch(Exception $e) {
+			Logger::print($e->getMessage());
+		}
+		
+	}
+}
+
+$app = new Bootstrapper();
+$app->start();
